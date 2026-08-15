@@ -59,7 +59,7 @@ if page == "Register":
             except db.ValidationError as e:
                 st.error(f"⚠️ {e}")
 
-```python
+
 # ---------------------------------------------------------------- DASHBOARD
 else:
     st.title("📊 Volunteer Dashboard")
@@ -267,7 +267,7 @@ else:
         # ================================================================
         # DOWNLOAD CSV
         # ================================================================
-        st.download_button(
+               st.download_button(
             "⬇️ Download Volunteer Records as CSV",
             display_df.to_csv(index=False).encode("utf-8"),
             "volunteers_export.csv",
