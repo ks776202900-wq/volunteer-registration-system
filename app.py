@@ -265,11 +265,11 @@ else:
         )
 
         # ================================================================
-        # DOWNLOAD CSV
-        # ================================================================
-                     st.download_button(
-            "⬇️ Download Volunteer Records as CSV",
-            display_df.to_csv(index=False).encode("utf-8"),
-            "volunteers_export.csv",
-            "text/csv"
-        )
+# DOWNLOAD CSV
+# ================================================================
+st.download_button(
+    label="⬇️ Download Volunteer Records as CSV",
+    data=display_df.to_csv(index=False).encode("utf-8"),
+    file_name="volunteers_export.csv",
+    mime="text/csv",
+)
