@@ -19,7 +19,23 @@ db.init_db()
 
 st.title("🙋 Volunteer Registration System")
 
-page = st.sidebar.radio("Navigate", ["Register", "Dashboard"])
+# ---------------------------------------------------------------- NAVIGATION
+
+st.sidebar.title("🙋 Volunteer Registration")
+
+page = "Register"
+
+if st.sidebar.checkbox("🔐 Admin Login"):
+    admin_password = st.text_input(
+        "Admin Password",
+        type="password"
+    )
+
+    if admin_password == st.secrets["ADMIN_PASSWORD"]:
+        page = "Dashboard"
+        st.sidebar.success("Admin access granted")
+    elif admin_password:
+        st.sidebar.error("Incorrect password")
 
 AREAS_OF_INTEREST = [
     "Education", "Healthcare", "Environment", "Disaster Relief",
