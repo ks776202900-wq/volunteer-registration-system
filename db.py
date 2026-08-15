@@ -1,4 +1,5 @@
 """
+
 db.py — Database layer for the Volunteer Registration System (MySQL version).
 
 Handles connection, validated inserts, and read queries against a MySQL
@@ -14,7 +15,7 @@ import os
 import re
 from datetime import datetime
 from contextlib import contextmanager
-
+import streamlit as st
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -24,13 +25,24 @@ try:
 except ImportError:
     pass  # .env is optional; env vars can also be set directly
 
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", "3306")),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_NAME", "volunteer_db"),
-}
+if hasattr(st, "secrets") and "DB_HOST" in st.secrets:
+    DB_CONFIG = {
+        "host": st.secrets["DB_HOST"],
+        "port": int(st.secrets["DB_PORT"]),
+        "user": st.secrets["DB_USER"],
+        "password": st.secrets["DB_PASSWORD"],
+        "database": st.secrets["DB_NAME"],
+        "ssl_disabled": False,
+    }
+else:
+    DB_CONFIG = {
+        "host": os.getenv("DB_HOST", "localhost"),
+        "port": int(os.getenv("DB_PORT", "3306")),
+        "user": os.getenv("DB_USER", "root"),
+        "password": os.getenv("DB_PASSWORD", ""),
+        "database": os.getenv("DB_NAME", "volunteer_db"),
+        "ssl_disabled": False,
+    }
 
 EMAIL_RE = re.compile(r"^[\w\.\+\-]+@[\w\-]+\.[a-zA-Z]{2,}$")
 PHONE_RE = re.compile(r"^\+?\d{7,15}$")
