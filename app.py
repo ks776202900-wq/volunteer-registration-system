@@ -59,9 +59,11 @@ if page == "Register":
             except db.ValidationError as e:
                 st.error(f"⚠️ {e}")
 
+```python
 # ---------------------------------------------------------------- DASHBOARD
 else:
-    st.subheader("Volunteer Dashboard")
+    st.title("📊 Volunteer Dashboard")
+    st.caption("Overview and analytics of registered volunteers")
 
     stats = db.get_stats()
     volunteers = db.get_all_volunteers()
@@ -69,47 +71,206 @@ else:
     if stats["total"] == 0:
         st.info("No volunteers registered yet. Add some from the Register page.")
     else:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Total Volunteers", stats["total"])
-        c2.metric("Areas Covered", len(stats["by_interest"]))
-        c3.metric("Latest Registration", volunteers[0]["registered_on"].strftime("%d-%m-%Y %H:%M"))
-
         df = pd.DataFrame(volunteers)
+        df["registered_on"] = pd.to_datetime(df["registered_on"])
+
+        # ================================================================
+        # KPI CARDS
+        # ================================================================
+        total = len(df)
+        areas = df["area_of_interest"].nunique()
+        genders = df["gender"].nunique()
+        latest = df["registered_on"].max().strftime("%d-%m-%Y")
+
+        c1, c2, c3, c4 = st.columns(4)
+
+        c1.metric("👥 Total Volunteers", total)
+        c2.metric("📍 Areas Covered", areas)
+        c3.metric("⚧ Gender Categories", genders)
+        c4.metric("📅 Latest Registration", latest)
+
+        st.divider()
+
+        # ================================================================
+        # FILTERS
+        # ================================================================
+        st.subheader("🔎 Filters")
+
+        f1, f2, f3 = st.columns(3)
+
+        with f1:
+            area_options = ["All"] + sorted(
+                df["area_of_interest"].dropna().unique().tolist()
+            )
+            selected_area = st.selectbox(
+                "Area of Interest",
+                area_options
+            )
+
+        with f2:
+            gender_options = ["All"] + sorted(
+                df["gender"].dropna().unique().tolist()
+            )
+            selected_gender = st.selectbox(
+                "Gender",
+                gender_options
+            )
+
+        with f3:
+            availability_options = ["All"] + sorted(
+                df["availability"].dropna().unique().tolist()
+            )
+            selected_availability = st.selectbox(
+                "Availability",
+                availability_options
+            )
+
+        filtered_df = df.copy()
+
+        if selected_area != "All":
+            filtered_df = filtered_df[
+                filtered_df["area_of_interest"] == selected_area
+            ]
+
+        if selected_gender != "All":
+            filtered_df = filtered_df[
+                filtered_df["gender"] == selected_gender
+            ]
+
+        if selected_availability != "All":
+            filtered_df = filtered_df[
+                filtered_df["availability"] == selected_availability
+            ]
+
+        st.caption(
+            f"Showing {len(filtered_df)} of {len(df)} volunteers"
+        )
+
+        st.divider()
+
+        # ================================================================
+        # CHARTS
+        # ================================================================
+        st.subheader("📈 Volunteer Analytics")
 
         col1, col2 = st.columns(2)
+
         with col1:
+            interest_data = (
+                filtered_df["area_of_interest"]
+                .value_counts()
+                .reset_index()
+            )
+
+            interest_data.columns = [
+                "area_of_interest",
+                "count"
+            ]
+
             fig1 = px.bar(
-                pd.DataFrame(stats["by_interest"]),
-                x="area_of_interest", y="c",
-                labels={"area_of_interest": "Area of Interest", "c": "Volunteers"},
+                interest_data,
+                x="area_of_interest",
+                y="count",
                 title="Volunteers by Area of Interest",
+                labels={
+                    "area_of_interest": "Area of Interest",
+                    "count": "Volunteers"
+                }
             )
-            st.plotly_chart(fig1, use_container_width=True)
+
+            st.plotly_chart(
+                fig1,
+                use_container_width=True
+            )
+
         with col2:
-            fig2 = px.pie(
-                pd.DataFrame(stats["by_gender"]),
-                names="gender", values="c",
-                title="Volunteers by Gender",
+            gender_data = (
+                filtered_df["gender"]
+                .value_counts()
+                .reset_index()
             )
-            st.plotly_chart(fig2, use_container_width=True)
 
-        df["registered_on"] = pd.to_datetime(df["registered_on"])
-        trend = df.groupby(df["registered_on"].dt.date).size().reset_index(name="count")
-        fig3 = px.line(trend, x="registered_on", y="count", markers=True,
-                        title="Registrations Over Time",
-                        labels={"registered_on": "Date", "count": "New Registrations"})
-        st.plotly_chart(fig3, use_container_width=True)
+            gender_data.columns = [
+                "gender",
+                "count"
+            ]
 
-        st.markdown("### All Registrations")
-        search = st.text_input("Search by name, email, or area of interest")
-        if search:
-            mask = df.apply(lambda r: search.lower() in str(r.values).lower(), axis=1)
-            df = df[mask]
-        st.dataframe(df, use_container_width=True, hide_index=True)
+            fig2 = px.pie(
+                gender_data,
+                names="gender",
+                values="count",
+                title="Volunteers by Gender"
+            )
 
-        st.download_button(
-            "Download as CSV",
-            df.to_csv(index=False).encode("utf-8"),
-            "volunteers_export.csv",
-            "text/csv",
+            st.plotly_chart(
+                fig2,
+                use_container_width=True
+            )
+
+        # ================================================================
+        # REGISTRATION TREND
+        # ================================================================
+        trend = (
+            filtered_df
+            .groupby(
+                filtered_df["registered_on"].dt.date
+            )
+            .size()
+            .reset_index(name="count")
         )
+
+        fig3 = px.line(
+            trend,
+            x="registered_on",
+            y="count",
+            markers=True,
+            title="Registrations Over Time",
+            labels={
+                "registered_on": "Date",
+                "count": "New Registrations"
+            }
+        )
+
+        st.plotly_chart(
+            fig3,
+            use_container_width=True
+        )
+
+        st.divider()
+
+        # ================================================================
+        # VOLUNTEER RECORDS
+        # ================================================================
+        st.subheader("📋 Volunteer Records")
+
+        search = st.text_input(
+            "🔍 Search by name, email, phone, or area of interest"
+        )
+
+        display_df = filtered_df.copy()
+
+        if search:
+            mask = display_df.apply(
+                lambda row: search.lower()
+                in str(row.values).lower(),
+                axis=1
+            )
+
+            display_df = display_df[mask]
+
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        # ================================================================
+        # DOWNLOAD CSV
+        # ================================================================
+        st.download_button(
+            "⬇️ Download Volunteer Records as CSV",
+            display_df.to_csv(index=False).encode("utf-8"),
+            "volunteers_export.csv",
+            "text/csv"
+        )
+```
