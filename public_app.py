@@ -3,13 +3,12 @@ import db
 
 st.set_page_config(
     page_title="Volunteer Registration",
-    page_icon="🙋",
     layout="centered"
 )
 
 db.init_db()
 
-st.title("🙋 Volunteer Registration")
+st.title("Volunteer Registration")
 st.write("Thank you for your interest in volunteering. Please fill in the form below.")
 
 AREAS_OF_INTEREST = [
@@ -72,7 +71,7 @@ with st.form("registration_form", clear_on_submit=True):
     skills = st.text_input("Skills (optional)")
 
     submitted = st.form_submit_button(
-        "🙋 Register as Volunteer"
+        "Register as Volunteer"
     )
 
     if submitted:
@@ -93,7 +92,7 @@ with st.form("registration_form", clear_on_submit=True):
             db.add_volunteer(data)
 
             st.success(
-                f"✅ {name} has been registered successfully!"
+                f" {name} has been registered successfully!"
             )
 
             st.balloons()
