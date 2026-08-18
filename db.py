@@ -196,3 +196,9 @@ def get_stats():
         cur.close()
 
     return {"total": total, "by_interest": by_interest, "by_gender": by_gender}
+def delete_all_volunteers():
+    """Deletes all volunteer registration records."""
+    with get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM volunteers")
+        cur.close()
