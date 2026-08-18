@@ -1,4 +1,3 @@
-```python
 """
 app.py — Volunteer Registration System
 Admin Dashboard
