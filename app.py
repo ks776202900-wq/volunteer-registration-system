@@ -17,7 +17,6 @@ import db
 
 st.set_page_config(
     page_title="Volunteer Admin Dashboard",
-    page_icon="📊",
     layout="wide"
 )
 
@@ -26,7 +25,7 @@ db.init_db()
 
 # ---------------------------------------------------------------- ADMIN LOGIN
 
-st.sidebar.title("🔐 Admin Panel")
+st.sidebar.title("Admin Panel")
 
 admin_password = st.sidebar.text_input(
     "Admin Password",
@@ -42,7 +41,7 @@ if "ADMIN_PASSWORD" not in st.secrets:
 
 if admin_password != st.secrets["ADMIN_PASSWORD"]:
 
-    st.title("🔐 Admin Dashboard")
+    st.title("Admin Dashboard")
 
     st.info(
         "Please enter the admin password in the sidebar "
@@ -54,9 +53,9 @@ if admin_password != st.secrets["ADMIN_PASSWORD"]:
 
 # ---------------------------------------------------------------- ADMIN DASHBOARD
 
-st.sidebar.success("✅ Admin access granted")
+st.sidebar.success("Admin access granted")
 
-st.title("📊 Volunteer Admin Dashboard")
+st.title("Volunteer Admin Dashboard")
 st.caption("Overview and analytics of registered volunteers")
 
 
@@ -100,22 +99,22 @@ latest = df["registered_on"].max().strftime(
 c1, c2, c3, c4 = st.columns(4)
 
 c1.metric(
-    "👥 Total Volunteers",
+    "Total Volunteers",
     total
 )
 
 c2.metric(
-    "📍 Areas Covered",
+    "Areas Covered",
     areas
 )
 
 c3.metric(
-    "⚧ Gender Categories",
+    "Gender Categories",
     genders
 )
 
 c4.metric(
-    "📅 Latest Registration",
+    "Latest Registration",
     latest
 )
 
@@ -125,7 +124,7 @@ st.divider()
 
 # ---------------------------------------------------------------- FILTERS
 
-st.subheader("🔎 Filters")
+st.subheader("Filters")
 
 f1, f2, f3 = st.columns(3)
 
@@ -312,7 +311,7 @@ st.divider()
 
 # ---------------------------------------------------------------- VOLUNTEER RECORDS
 
-st.subheader("📋 Volunteer Records")
+st.subheader("Volunteer Records")
 
 
 search = st.text_input(
@@ -344,7 +343,7 @@ st.dataframe(
 # ---------------------------------------------------------------- DOWNLOAD CSV
 
 st.download_button(
-    "⬇️ Download Volunteer Records as CSV",
+    "Download Volunteer Records as CSV",
     data=display_df.to_csv(index=False).encode("utf-8"),
     file_name="volunteers_export.csv",
     mime="text/csv"
