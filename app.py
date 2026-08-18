@@ -54,7 +54,30 @@ if admin_password != st.secrets["ADMIN_PASSWORD"]:
 # ---------------------------------------------------------------- ADMIN DASHBOARD
 
 st.sidebar.success("Admin access granted")
+# ---------------------------------------------------------------- CLEAR TEST DATA
 
+st.sidebar.divider()
+
+st.sidebar.subheader("⚠️ Data Management")
+
+if st.sidebar.button("Delete All Volunteer Records"):
+    st.session_state["confirm_delete"] = True
+
+if st.session_state.get("confirm_delete", False):
+
+    st.warning(
+        "⚠️ This will permanently delete ALL volunteer registration records."
+    )
+
+    if st.button("Yes, Delete All Records"):
+        db.delete_all_volunteers()
+        st.session_state["confirm_delete"] = False
+        st.success("All volunteer records have been deleted.")
+        st.rerun()
+
+    if st.button("Cancel"):
+        st.session_state["confirm_delete"] = False
+        st.rerun()
 st.title("Volunteer Admin Dashboard")
 st.caption("Overview and analytics of registered volunteers")
 
