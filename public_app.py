@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import db
 
@@ -70,9 +69,7 @@ with st.form("registration_form", clear_on_submit=True):
         AVAILABILITY
     )
 
-    skills = st.text_input(
-        "Skills (optional)"
-    )
+    skills = st.text_input("Skills (optional)")
 
     submitted = st.form_submit_button(
         "🙋 Register as Volunteer"
@@ -109,4 +106,3 @@ with st.form("registration_form", clear_on_submit=True):
                 "Something went wrong while submitting the form. "
                 "Please try again later."
             )
-```
