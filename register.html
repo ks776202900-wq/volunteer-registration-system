@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Volunteer Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Volunteer Registration</h1>
+
+    <p class="subtitle">
+        Register as a volunteer and become part of our community.
+    </p>
+
+    <form id="registrationForm">
+
+        <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age *</label>
+            <input
+                type="number"
+                id="age"
+                name="age"
+                min="15"
+                max="100"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Gender *</label>
+            <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <textarea
+                id="address"
+                name="address"
+                placeholder="Enter your address"
+            ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="area_of_interest">Area of Interest *</label>
+            <select
+                id="area_of_interest"
+                name="area_of_interest"
+                required
+            >
+                <option value="">Select Area</option>
+                <option value="Education">Education</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Environment">Environment</option>
+                <option value="Disaster Relief">Disaster Relief</option>
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="Animal Welfare">Animal Welfare</option>
+                <option value="Event Support">Event Support</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="availability">Availability *</label>
+            <select
+                id="availability"
+                name="availability"
+                required
+            >
+                <option value="">Select Availability</option>
+                <option value="Weekdays">Weekdays</option>
+                <option value="Weekends">Weekends</option>
+                <option value="Evenings">Evenings</option>
+                <option value="Flexible / Anytime">
+                    Flexible / Anytime
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="skills">Skills</label>
+            <textarea
+                id="skills"
+                name="skills"
+                placeholder="Enter your skills"
+            ></textarea>
+        </div>
+
+        <button type="submit">
+            Register as Volunteer
+        </button>
+
+    </form>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+
+    const form = document.getElementById("registrationForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        message.textContent = "Registering...";
+        message.className = "";
+
+        const data = {
+            name: document.getElementById("name").value,
+            age: parseInt(document.getElementById("age").value),
+            gender: document.getElementById("gender").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            address: document.getElementById("address").value,
+            area_of_interest:
+                document.getElementById("area_of_interest").value,
+            availability:
+                document.getElementById("availability").value,
+            skills: document.getElementById("skills").value
+        };
+
+        try {
+
+            const response = await fetch("/api/register", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+
+                message.textContent = result.message;
+                message.className = "success";
+
+                form.reset();
+
+            } else {
+
+                message.textContent =
+                    result.detail || "Registration failed.";
+
+                message.className = "error";
+            }
+
+        } catch (error) {
+
+            message.textContent =
+                "Unable to connect to the server.";
+
+            message.className = "error";
+
+            console.error(error);
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
