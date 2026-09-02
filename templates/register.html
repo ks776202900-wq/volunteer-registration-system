@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -189,11 +190,7 @@
 
         <div class="form-group">
             <label for="availability">Availability *</label>
-            <select
-                id="availability"
-                name="availability"
-                required
-            >
+            <select id="availability" name="availability" required>
                 <option value="">Select Availability</option>
                 <option value="Weekdays">Weekdays</option>
                 <option value="Weekends">Weekends</option>
@@ -251,7 +248,7 @@
 
         try {
 
-            const response = await fetch("/api/register", {
+            const response = await fetch("/register", {
                 method: "POST",
 
                 headers: {
@@ -287,6 +284,15 @@
 
             console.error(error);
         }
+
+    });
+
+</script>
+
+</body>
+</html>
+```
+
 
     });
 
