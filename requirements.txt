@@ -11,3 +11,6 @@ streamlit
 pandas
 plotly
 jinja2
+fastapi
+uvicorn
+pydantic
