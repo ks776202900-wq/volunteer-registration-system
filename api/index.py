@@ -1,4 +1,3 @@
-```python
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
