@@ -10,3 +10,4 @@ python-dotenv
 streamlit
 pandas
 plotly
+jinja2
