@@ -1,3 +1,4 @@
+```python
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
@@ -45,11 +46,10 @@ class AdminLogin(BaseModel):
 # HOME / REGISTRATION PAGE
 # ---------------------------------------------------------
 
-@app.get("/", response_class=HTMLResponse)
-def registration_page(request: Request):
-    return templates.TemplateResponse(
-        "register.html",
-        {"request": request}
+@app.get("/")
+def registration_page():
+    return FileResponse(
+        BASE_DIR / "templates" / "register.html"
     )
 
 
@@ -196,3 +196,5 @@ def delete_all_volunteers(login: AdminLogin):
             status_code=500,
             detail=str(e)
         )
+```
+
