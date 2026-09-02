@@ -1,14 +1,20 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from pathlib import Path
+import os
 
 import db
 
 
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+templates = Jinja2Templates(
+    directory=str(BASE_DIR / "templates")
+)
 
 
 # ---------------------------------------------------------
@@ -25,6 +31,14 @@ class Volunteer(BaseModel):
     area_of_interest: str
     skills: str = ""
     availability: str
+
+
+# ---------------------------------------------------------
+# ADMIN LOGIN MODEL
+# ---------------------------------------------------------
+
+class AdminLogin(BaseModel):
+    password: str
 
 
 # ---------------------------------------------------------
@@ -54,54 +68,131 @@ def home():
 # REGISTER VOLUNTEER
 # ---------------------------------------------------------
 
-@app.post("/api/register")
+@app.post("/register")
 def register_volunteer(volunteer: Volunteer):
 
     data = volunteer.model_dump()
 
-    db.add_volunteer(data)
+    try:
+        result = db.add_volunteer(data)
+
+        return {
+            "success": True,
+            "message": "Volunteer registered successfully!",
+            "data": result
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+
+# ---------------------------------------------------------
+# ADMIN LOGIN
+# ---------------------------------------------------------
+
+@app.post("/admin/login")
+def admin_login(login: AdminLogin):
+
+    admin_password = os.getenv(
+        "ADMIN_PASSWORD",
+        "admin123"
+    )
+
+    if login.password != admin_password:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid admin password."
+        )
 
     return {
         "success": True,
-        "message": f"{data['name']} has been registered successfully!"
+        "message": "Admin access granted."
     }
 
 
 # ---------------------------------------------------------
-# GET ALL VOLUNTEERS
+# ADMIN DASHBOARD PAGE
 # ---------------------------------------------------------
 
-@app.get("/api/volunteers")
-def get_volunteers():
-
-    return db.get_all_volunteers()
+@app.get("/admin")
+def admin_page():
+    return FileResponse(
+        BASE_DIR / "admin.html"
+    )
 
 
 # ---------------------------------------------------------
-# GET STATISTICS
+# ADMIN DATA
 # ---------------------------------------------------------
 
-@app.get("/api/stats")
-def get_statistics():
+@app.get("/admin/data")
+def admin_data(
+    x_admin_password: str = Header(default="")
+):
 
-    return db.get_stats()
+    admin_password = os.getenv(
+        "ADMIN_PASSWORD",
+        "admin123"
+    )
+
+    if x_admin_password != admin_password:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized."
+        )
+
+    try:
+        volunteers = db.get_all_volunteers()
+
+        for volunteer in volunteers:
+            if volunteer.get("registered_on"):
+                volunteer["registered_on"] = (
+                    volunteer["registered_on"].isoformat()
+                )
+
+        return {
+            "success": True,
+            "volunteers": volunteers
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 # ---------------------------------------------------------
 # DELETE ALL VOLUNTEERS
 # ---------------------------------------------------------
 
-@app.delete("/api/volunteers")
-def delete_volunteers():
+@app.delete("/admin/delete-all")
+def delete_all_volunteers(login: AdminLogin):
 
-    db.delete_all_volunteers()
+    admin_password = os.getenv(
+        "ADMIN_PASSWORD",
+        "admin123"
+    )
 
-    return {
-        "success": True,
-        "message": "All volunteer records have been deleted."
-    }
+    if login.password != admin_password:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid admin password."
+        )
 
-    return {
-        "success": True,
-        "message": "All volunteer records have been deleted."
-    }
+    try:
+        db.delete_all_volunteers()
+
+        return {
+            "success": True,
+            "message": "All volunteer records have been deleted."
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
