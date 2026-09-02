@@ -3,3 +3,10 @@ pandas>=2.0
 plotly>=5.18
 mysql-connector-python>=8.0
 python-dotenv>=1.0
+fastapi
+uvicorn
+mysql-connector-python
+python-dotenv
+streamlit
+pandas
+plotly
